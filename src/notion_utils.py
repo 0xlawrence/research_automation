@@ -1,10 +1,12 @@
+# src/notion_utils.py
+
 from notion_client import Client
 from src.config import NOTION_TOKEN, NOTION_DATABASE_ID
 
 # Notionクライアントを初期化
 notion = Client(auth=NOTION_TOKEN)
 
-def create_notion_page(title: str, url: str, summary: str, published_date=None, source=None) -> dict:
+def create_notion_page(title: str, url: str, summary: str, published_date=None, source=None, category=None) -> dict:
     """
     Notionデータベースに新しいページを作成。
     初期ステータスは `Not Started`。
@@ -22,6 +24,9 @@ def create_notion_page(title: str, url: str, summary: str, published_date=None, 
 
         if source:
             properties["Source"] = {"select": {"name": source}}
+        
+        if category:
+            properties["Category"] = {"select": {"name": category}}
 
         new_page = notion.pages.create(
             parent={"database_id": NOTION_DATABASE_ID},
@@ -67,7 +72,7 @@ def get_pages_by_status(status: str):
 
 def append_page_content(page_id: str, content: str):
     """
-    Notionページに適切なリッチテキスト形式でコンテンツを追加。
+    Markdown形式のテキストをNotionのリッチテキスト形式でページに追加。
     """
     try:
         blocks = []
@@ -78,33 +83,54 @@ def append_page_content(page_id: str, content: str):
             if not line:  # 空行をスキップ
                 continue
 
-            # 見出し（Markdownの "####", "###", "##", "#" に対応）
-            if line.startswith("#### "):
+            
+            # 見出し（Markdownの "###", "##", "#" に対応）
+            if line.startswith("### "):
                 blocks.append({
                     "object": "block",
                     "type": "heading_3",
                     "heading_3": {
-                        "rich_text": [{"type": "text", "text": {"content": line[5:]}}]
-                    }
-                })
-            elif line.startswith("### "):
-                blocks.append({
-                    "object": "block",
-                    "type": "heading_2",
-                    "heading_2": {
                         "rich_text": [{"type": "text", "text": {"content": line[4:]}}]
                     }
                 })
             elif line.startswith("## "):
                 blocks.append({
                     "object": "block",
-                    "type": "heading_1",
-                    "heading_1": {
+                    "type": "heading_2",
+                    "heading_2": {
                         "rich_text": [{"type": "text", "text": {"content": line[3:]}}]
                     }
                 })
+            elif line.startswith("# "):
+                blocks.append({
+                    "object": "block",
+                    "type": "heading_1",
+                    "heading_1": {
+                        "rich_text": [{"type": "text", "text": {"content": line[2:]}}]
+                    }
+                })
 
-            # バレットリスト（Markdownの "-" に対応）
+            # #### (見出し4に該当) を Bold に変換
+            elif line.startswith("#### "):
+                bold_text = line[5:].strip()  # #### の後のテキスト
+
+                # 前後の記号を除去 (マークダウンが正しく認識されるように)
+                if bold_text[0] in [":", "："]:
+                    bold_text = bold_text[1:].strip()
+                if bold_text[-1:] in [":", "："]:
+                    bold_text = bold_text[:-1].strip()
+
+                blocks.append({
+                    "object": "block",
+                    "type": "paragraph",
+                    "paragraph": {
+                        "rich_text": [
+                            {"type": "text", "text": {"content": bold_text}, "annotations": {"bold": True}}
+                        ]
+                    }
+                })
+
+            # バレットリスト（Markdownの "- " に対応）
             elif line.startswith("- "):
                 blocks.append({
                     "object": "block",
@@ -114,9 +140,9 @@ def append_page_content(page_id: str, content: str):
                     }
                 })
 
-            # ナンバーリスト（番号付きリスト：例 "1. 項目"）
-            elif line[:2].isdigit() and line[2] == ".":
-                blocks.append({
+            # 番号付きリスト（"1. 項目" の形式に対応）
+            elif line[0].isdigit() and line[1] == "." and line[2] == " ":
+                    blocks.append({
                     "object": "block",
                     "type": "numbered_list_item",
                     "numbered_list_item": {

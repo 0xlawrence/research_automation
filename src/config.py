@@ -22,8 +22,16 @@ RSS_FEEDS = [
     "https://wublock.substack.com/feed",
     "https://parsec.substack.com/feed",
     "https://www.decentralised.co/feed",
-    "https://blockworks.co/feed",
     "https://www.onchaintimes.com/rss/",
+    "https://www.thedefinvestor.com/feed",
+    "https://www.alphaplease.com/feed",
+    "https://stacymuur.substack.com/feed",
+    "https://www.ignasdefi.com/feed",
+    "https://s4mmyeth.substack.com/feed",
+    "https://pomp.substack.com/feed",
+    "https://reflexivityresearch.substack.com/feed",
+    "https://0xkyle.substack.com/feed",
+    "https://bowtiedbull.io/feed",
     # 必要に応じて追加
 ]
 

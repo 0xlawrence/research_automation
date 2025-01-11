@@ -1,3 +1,5 @@
+# main.py
+
 import sys
 import os
 from datetime import datetime
@@ -7,7 +9,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from src.config import RSS_FEEDS
 from src.rss_fetch import fetch_all_rss_items
-from src.openai_utils import generate_detailed_summary, generate_report_outline, generate_insights_and_questions
+from src.openai_utils import summarize_text, categorize_article_with_ai, generate_detailed_summary, generate_report_outline, generate_insights_and_questions
 from src.scraper import fetch_article_content
 from src.notion_utils import create_notion_page, append_page_content, update_notion_status, get_pages_by_status
 from src.cache_utils import load_processed_urls, save_processed_url
@@ -28,19 +30,32 @@ def register_new_articles():
             print(f"Skipping already processed article: {url}")
             continue
 
+        # 記事の情報を取得
+        title = article["title"]
+        raw_summary = article.get("summary", "No summary available.")
+        published_date = article.get("published")
+        
+        # 高品質な要約を生成
+        summary = summarize_text(raw_summary)
+
+        # カテゴリを自動割り当て
+        category = categorize_article_with_ai(title, summary, max_tokens=10)
+
         # Notionページを作成
         create_notion_page(
-            title=article["title"],
+            title=title,
             url=url,
-            summary=article["summary"],
-            published_date=article.get("published"),
+            summary=summary,  # AI生成の要約を渡す
+            published_date=published_date,
             source=article.get("source"),
+            category=category  # 新たにカテゴリを追加
         )
 
         # 処理済みURLとして保存
         save_processed_url(url)
 
     print("All new articles have been registered with 'Not Started' status.")
+
 
 def process_articles():
     """
