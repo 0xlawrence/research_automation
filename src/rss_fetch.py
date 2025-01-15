@@ -33,6 +33,31 @@ def remove_html_tags(html_content: str) -> str:
     return parser.get_clean_text()
 
 
+def clean_domain(url: str) -> str:
+    """
+    URLからクリーンなドメイン名を抽出する。
+    - www.を除去
+    - substackの場合はサブドメインを保持
+    - その他のドメインは通常通り処理
+    """
+    domain = url.split('/')[2]
+    
+    # www.を除去
+    if domain.startswith('www.'):
+        domain = domain[4:]
+    
+    # サブドメインを保持するドメインのリスト
+    keep_subdomain_domains = ['substack.com']
+    
+    # ドメインがkeep_subdomain_domainsのいずれかで終わる場合、サブドメインを保持
+    for keep_domain in keep_subdomain_domains:
+        if domain.endswith(keep_domain):
+            return domain
+    
+    # それ以外の場合は、www.のみを除去して返す
+    return domain
+
+
 def fetch_rss_items(feed_url: str, max_items: int = 5):
     """
     指定したRSSフィードURLから最新の記事を取得しリストとして返す。
@@ -45,28 +70,36 @@ def fetch_rss_items(feed_url: str, max_items: int = 5):
     try:
         feed = feedparser.parse(feed_url)
         items = []
+        
+        # フィードのソース名を取得（ドメインをクリーンにする）
+        source = clean_domain(feed_url)
+        
         for entry in feed.entries[:max_items]:
             published = entry.published if 'published' in entry else ''
             published_dt = None
+            
             if published:
                 try:
+                    # feedparserのパース結果をdatetimeオブジェクトに変換
                     published_dt = datetime(*entry.published_parsed[:6])
-                except Exception as e:
-                    print(f"Error parsing published date: {e}")
-
-            # サマリーのHTMLタグを除去
-            summary = entry.get("summary", "")
-            clean_summary = remove_html_tags(summary)
-
+                except:
+                    published_dt = None
+            
+            # 記事の要約を取得（descriptionまたはsummaryから）
+            content = entry.get('description', '') or entry.get('summary', '')
+            clean_content = remove_html_tags(content)
+            
             items.append({
-                "title": entry.title,
-                "link": entry.link,
-                "published": published_dt,
-                "summary": clean_summary,
+                'title': entry.title,
+                'link': entry.link,
+                'summary': clean_content,
+                'published': published_dt,
+                'source': source  # クリーンなドメインをソースとして使用
             })
+            
         return items
     except Exception as e:
-        print(f"Error fetching RSS items from {feed_url}: {e}")
+        print(f"Error fetching RSS feed {feed_url}:", e)
         return []
 
 

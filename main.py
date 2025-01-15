@@ -34,6 +34,7 @@ def register_new_articles():
         title = article["title"]
         raw_summary = article.get("summary", "No summary available.")
         published_date = article.get("published")
+        source = article.get("source", "Unknown")  # ソース情報を取得
         
         # 高品質な要約を生成
         summary = summarize_text(raw_summary)
@@ -42,17 +43,21 @@ def register_new_articles():
         category = categorize_article_with_ai(title, summary, max_tokens=10)
 
         # Notionページを作成
-        create_notion_page(
+        page = create_notion_page(
             title=title,
             url=url,
             summary=summary,  # AI生成の要約を渡す
             published_date=published_date,
-            source=article.get("source"),
-            category=category  # 新たにカテゴリを追加
+            source=source,  # ソース情報を渡す
+            category=category
         )
 
-        # 処理済みURLとして保存
-        save_processed_url(url)
+        if page:
+            # 処理済みとしてURLを保存
+            save_processed_url(url)
+            print(f"Created new Notion page for: {title}")
+        else:
+            print(f"Failed to create Notion page for: {title}")
 
     print("All new articles have been registered with 'Not Started' status.")
 
@@ -79,9 +84,9 @@ def process_articles():
             insights_and_questions = generate_insights_and_questions(article_content)
 
             # ページ内容をMarkdown形式でフォーマット
-            append_page_content(page_id, f"# 詳細なサマリー\n{detailed_summary}")
-            append_page_content(page_id, f"# レポートの骨子\n{report_outline}")
-            append_page_content(page_id, f"# 考察の視点と問い\n{insights_and_questions}")
+            append_page_content(page_id, f"# Detailed Summary\n\n{detailed_summary}\n")
+            append_page_content(page_id, f"# Report Outline\n\n{report_outline}\n")
+            append_page_content(page_id, f"# Insights and Questions\n\n{insights_and_questions}\n")
 
             # ステータスを "Completed" に更新
             update_notion_status(page_id, "Completed")

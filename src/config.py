@@ -30,8 +30,15 @@ RSS_FEEDS = [
     "https://s4mmyeth.substack.com/feed",
     "https://pomp.substack.com/feed",
     "https://reflexivityresearch.substack.com/feed",
-    "https://0xkyle.substack.com/feed",
-    "https://bowtiedbull.io/feed",
+    "https://lifi.substack.com/feed",
+    "https://www.citationneeded.news/rss/",
+    "https://www.shoal.gg/feed",
+    "https://alearesearch.substack.com/feed",
+    "https://unchainedcrypto.substack.com/feed",
+    "https://magazine.sebastianraschka.com/feed",
+    "https://newsletter.victordibia.com/feed",
+    "https://arnicas.substack.com/feed",
+    "https://www.ai-supremacy.com/feed",
     # 必要に応じて追加
 ]
 
