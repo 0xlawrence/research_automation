@@ -1,6 +1,7 @@
 # Research Automation Tool
 
 ブロックチェーン・AI関連のニュースやリサーチを収集・分析し、Notionデータベースで管理するツール。
+Site: https://0xlawrence.notion.site/17650a8c997080948d93fe473cbed22d?v=17d50a8c997080d8b92a000ca48509f9（現在は実行結果の閲覧のみ）
 
 ## 機能概要
 
@@ -53,18 +54,27 @@ python main.py
 ## プロジェクト構造
 
 research-automation/
-- .env # 環境変数
-- .gitignore # Git除外設定
-- README.md # プロジェクト説明
-- requirements.txt # 依存パッケージ
-- main.py # メインスクリプト
-- src/
-    - init.py
-    - config.py # 設定・RSSフィード
-    - notion_utils.py # Notion API関連
-    - openai_utils.py # OpenAI API関連
-    - rss_fetch.py # RSSフィード取得
-    - scraper.py # Webスクレイピング
+├── .env # 環境変数
+├── .gitignore # Git除外設定
+├── README.md # プロジェクト説明
+├── requirements.txt # 依存パッケージ
+├── run_script.sh # 実行スクリプト
+│
+├── src/ # ソースコード
+│ ├── init.py
+│ ├── main.py # メインスクリプト
+│ ├── config.py # 設定・RSSフィード
+│ ├── notion_utils.py # Notion API関連
+│ ├── openai_utils.py # OpenAI API関連
+│ ├── rss_fetch.py # RSSフィード取得
+│ ├── scraper.py # Webスクレイピング
+│ └── cache_utils.py # URL処理履歴管理
+│
+├── logs/ # ログファイル
+│ └── .gitkeep
+│
+└── data/ # キャッシュなどのデータ
+└── .gitkeep
 
 ## 依存パッケージ
 
