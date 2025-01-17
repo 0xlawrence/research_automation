@@ -77,7 +77,7 @@ research-automation/
 ## 依存パッケージ
 
 - feedparser==6.0.10
-- openai>=1.12.0
+- openai==0.28.1
 - notion-client==2.3.0
 - python-dotenv==1.0.0
 - requests==2.31.0
