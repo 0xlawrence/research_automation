@@ -55,27 +55,24 @@ python main.py
 ## プロジェクト構造
 
 research-automation/
-├── .env # 環境変数
-├── .gitignore # Git除外設定
-├── README.md # プロジェクト説明
-├── requirements.txt # 依存パッケージ
-├── run_script.sh # 実行スクリプト
-│
-├── src/ # ソースコード
-│ ├── init.py
-│ ├── main.py # メインスクリプト
-│ ├── config.py # 設定・RSSフィード
-│ ├── notion_utils.py # Notion API関連
-│ ├── openai_utils.py # OpenAI API関連
-│ ├── rss_fetch.py # RSSフィード取得
-│ ├── scraper.py # Webスクレイピング
-│ └── cache_utils.py # URL処理履歴管理
-│
-├── logs/ # ログファイル
-│ └── .gitkeep
-│
-└── data/ # キャッシュなどのデータ
-└── .gitkeep
+  - .env                  # 環境変数
+  - .gitignore           # Git除外設定
+  - README.md            # プロジェクト説明
+  - requirements.txt     # 依存パッケージ
+  - run_script.sh        # 実行スクリプト
+  - src/                 # ソースコード
+    - __init__.py
+    - main.py           # メインスクリプト
+    - config.py         # 設定・RSSフィード
+    - notion_utils.py   # Notion API関連
+    - openai_utils.py   # OpenAI API関連
+    - rss_fetch.py      # RSSフィード取得
+    - scraper.py        # Webスクレイピング
+    - cache_utils.py    # URL処理履歴管理
+  - logs/               # ログファイル
+    - .gitkeep
+  - data/               # キャッシュなどのデータ
+    - .gitkeep
 
 ## 依存パッケージ
 
