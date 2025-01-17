@@ -4,15 +4,13 @@ import sys
 import os
 from datetime import datetime
 
-# src ディレクトリをモジュール検索パスに追加
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-
-from src.config import RSS_FEEDS
-from src.rss_fetch import fetch_all_rss_items
-from src.openai_utils import summarize_text, categorize_article_with_ai, generate_detailed_summary, generate_report_outline, generate_insights_and_questions
-from src.scraper import fetch_article_content
-from src.notion_utils import create_notion_page, append_page_content, update_notion_status, get_pages_by_status
-from src.cache_utils import load_processed_urls, save_processed_url
+# srcディレクトリはすでにカレントディレクトリなので、相対インポートに変更
+from config import RSS_FEEDS
+from rss_fetch import fetch_all_rss_items
+from openai_utils import summarize_text, categorize_article_with_ai, generate_detailed_summary, generate_report_outline, generate_insights_and_questions
+from scraper import fetch_article_content
+from notion_utils import create_notion_page, append_page_content, update_notion_status, get_pages_by_status
+from cache_utils import load_processed_urls, save_processed_url
 
 def register_new_articles():
     """

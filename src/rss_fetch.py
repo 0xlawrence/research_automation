@@ -3,6 +3,7 @@
 import feedparser
 from datetime import datetime
 from html.parser import HTMLParser
+import requests  # 追加
 
 
 class HTMLTagRemover(HTMLParser):
@@ -61,45 +62,64 @@ def clean_domain(url: str) -> str:
 def fetch_rss_items(feed_url: str, max_items: int = 5):
     """
     指定したRSSフィードURLから最新の記事を取得しリストとして返す。
-    Args:
-        feed_url (str): RSSフィードのURL
-        max_items (int): 最大取得記事数
-    Returns:
-        list: 記事情報のリスト
     """
     try:
+        # フィードを取得
         feed = feedparser.parse(feed_url)
-        items = []
         
-        # フィードのソース名を取得（ドメインをクリーンにする）
+        # フィードの取得に失敗した場合のチェック
+        if hasattr(feed, 'status') and feed.status >= 400:
+            print(f"Error fetching feed {feed_url}: HTTP status {feed.status}")
+            return []
+            
+        # フィードが空または無効な場合のチェック
+        if not hasattr(feed, 'entries') or not feed.entries:
+            print(f"No entries found in feed: {feed_url}")
+            return []
+            
+        items = []
         source = clean_domain(feed_url)
         
         for entry in feed.entries[:max_items]:
-            published = entry.published if 'published' in entry else ''
-            published_dt = None
-            
-            if published:
-                try:
-                    # feedparserのパース結果をdatetimeオブジェクトに変換
-                    published_dt = datetime(*entry.published_parsed[:6])
-                except:
-                    published_dt = None
-            
-            # 記事の要約を取得（descriptionまたはsummaryから）
-            content = entry.get('description', '') or entry.get('summary', '')
-            clean_content = remove_html_tags(content)
-            
-            items.append({
-                'title': entry.title,
-                'link': entry.link,
-                'summary': clean_content,
-                'published': published_dt,
-                'source': source  # クリーンなドメインをソースとして使用
-            })
-            
+            try:
+                # 日付の処理
+                published = entry.get('published', '')
+                published_dt = None
+                
+                if published and hasattr(entry, 'published_parsed'):
+                    try:
+                        published_dt = datetime(*entry.published_parsed[:6])
+                    except (TypeError, AttributeError):
+                        print(f"Error parsing date for entry in {feed_url}")
+                
+                # コンテンツの取得
+                content = (entry.get('description', '') or 
+                         entry.get('summary', '') or 
+                         entry.get('content', [{'value': ''}])[0]['value'])
+                
+                clean_content = remove_html_tags(content)
+                
+                # 必須フィールドの存在確認
+                if not entry.get('title') or not entry.get('link'):
+                    print(f"Missing required fields in entry from {feed_url}")
+                    continue
+                
+                items.append({
+                    'title': entry.title,
+                    'link': entry.link,
+                    'summary': clean_content,
+                    'published': published_dt,
+                    'source': source
+                })
+                
+            except Exception as entry_error:
+                print(f"Error processing entry from {feed_url}: {entry_error}")
+                continue
+                
         return items
+        
     except Exception as e:
-        print(f"Error fetching RSS feed {feed_url}:", e)
+        print(f"Error fetching RSS feed {feed_url}: {str(e)}")
         return []
 
 

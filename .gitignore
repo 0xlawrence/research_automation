@@ -1,16 +1,19 @@
-# 仮想環境を無視
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
 venv/
 
-# 環境変数ファイルを無視
-*.env
+# 環境変数
+.env
 
-# Pythonキャッシュファイルを無視
-__pycache__/
+# ログ
+logs/*
+!logs/.gitkeep
 
-# macOSの隠しファイルを無視
+# データ
+data/*
+!data/.gitkeep
+
+# その他
 .DS_Store
-
-# ログファイルを無視
-log.txt
-
-# その他、必要に応じて追加

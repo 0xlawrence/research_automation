@@ -1,23 +1,16 @@
 import os
 
-PROCESSED_URLS_FILE = "processed_urls.txt"
+CACHE_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "processed_urls.txt")
 
-def load_processed_urls() -> set:
-    """
-    処理済みURLをファイルから読み込む。
-    Returns:
-        set: 処理済みURLのセット
-    """
-    if not os.path.exists(PROCESSED_URLS_FILE):
+def load_processed_urls():
+    """処理済みURLのリストを読み込む"""
+    if not os.path.exists(CACHE_FILE):
         return set()
-    with open(PROCESSED_URLS_FILE, "r") as file:
-        return set(line.strip() for line in file)
+    
+    with open(CACHE_FILE, 'r') as f:
+        return set(line.strip() for line in f if line.strip())
 
 def save_processed_url(url: str):
-    """
-    処理済みURLをファイルに追加する。
-    Args:
-        url (str): 処理済みURL
-    """
-    with open(PROCESSED_URLS_FILE, "a") as file:
-        file.write(url + "\n")
+    """URLを処理済みとして保存"""
+    with open(CACHE_FILE, 'a') as f:
+        f.write(url + '\n')

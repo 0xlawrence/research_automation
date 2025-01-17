@@ -23,9 +23,9 @@
 ## セットアップ
 
 1. 必要な環境変数を設定（`.env`ファイル）:
-NOTION_TOKEN=your_notion_token
-NOTION_DATABASE_ID=your_database_id
-OPENAI_API_KEY=your_openai_api_key
+- NOTION_TOKEN=your_notion_token
+- NOTION_DATABASE_ID=your_database_id
+- OPENAI_API_KEY=your_openai_api_key
 
 2. 依存パッケージのインストール:
 bash
@@ -53,18 +53,18 @@ python main.py
 ## プロジェクト構造
 
 research-automation/
-├── .env # 環境変数
-├── .gitignore # Git除外設定
-├── README.md # プロジェクト説明
-├── requirements.txt # 依存パッケージ
-├── main.py # メインスクリプト
-└── src/
-    ├── init.py
-    ├── config.py # 設定・RSSフィード
-    ├── notion_utils.py # Notion API関連
-    ├── openai_utils.py # OpenAI API関連
-    ├── rss_fetch.py # RSSフィード取得
-    └── scraper.py # Webスクレイピング
+- .env # 環境変数
+- .gitignore # Git除外設定
+- README.md # プロジェクト説明
+- requirements.txt # 依存パッケージ
+- main.py # メインスクリプト
+- src/
+    - init.py
+    - config.py # 設定・RSSフィード
+    - notion_utils.py # Notion API関連
+    - openai_utils.py # OpenAI API関連
+    - rss_fetch.py # RSSフィード取得
+    - scraper.py # Webスクレイピング
 
 ## 依存パッケージ
 

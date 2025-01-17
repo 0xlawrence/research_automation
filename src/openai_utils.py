@@ -69,7 +69,7 @@ def generate_detailed_summary(text: str, max_tokens: int = 3000, temperature: fl
         print("Error in generate_detailed_summary:", e)
         return ""
 
-def generate_report_outline(text: str, max_tokens: int = 500, temperature: float = 0.7) -> str:
+def generate_report_outline(text: str, max_tokens: int = 1000, temperature: float = 0.7) -> str:
     """
     記事の内容から報告書のアウトラインを生成。
     """
@@ -112,8 +112,8 @@ def generate_insights_and_questions(text: str, max_tokens: int = 2000, temperatu
                     "role": "user",
                     "content": (
                         "以下の文章を分析し、以下の2つの観点で日本語でまとめてください：\n"
-                        "1. 重要な洞察（3-5個）\n"
-                        "2. 追加調査が必要な質問（3-5個）\n\n"
+                        "1. Insights（3-5個）\n"
+                        "2. Questions for Deep Dive（3-5個）\n\n"
                         f"文章:\n{text}"
                     )
                 }
@@ -126,30 +126,102 @@ def generate_insights_and_questions(text: str, max_tokens: int = 2000, temperatu
         print("Error in generate_insights_and_questions:", e)
         return ""
 
-def categorize_article_with_ai(title: str, summary: str, max_tokens: int = 10, temperature: float = 0.3) -> str:
+def categorize_article_with_ai(title: str, summary: str, max_tokens: int = 50, temperature: float = 0.1) -> str:
     """
     記事のタイトルとサマリーからカテゴリを推定。
+    
+    Returns:
+        str: 既存カテゴリまたは新規カテゴリ（条件を満たす場合のみ）
     """
+    EXISTING_CATEGORIES = {
+        # 既存カテゴリ
+        "Blockchain", "Crypto", "Market", "Regulation", 
+        "AI", "Security", "DeFi", "NFT",  # DeFi, NFTは一般的な表記を維持
+        "Layer1", "Layer2", "DAO",  # DAOは略語なので大文字
+
+        # 新規カテゴリ候補
+        "Gaming",     # ブロックチェーンゲーム全般
+        "Metaverse", # メタバース関連
+        "Privacy",   # プライバシー技術
+        "Identity",  # 分散型アイデンティティ
+        "Protocol",  # プロトコル開発
+        "Bridge",    # クロスチェーンブリッジ
+        "Social",    # Web3ソーシャル
+    }
+    
     try:
-        response = openai.ChatCompletion.create(
+        # Step 1: 既存カテゴリとの適合性確認
+        response_existing = openai.ChatCompletion.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", 
-                 "content": "以下のカテゴリーから最も適切なものを1つ選んでください：\n"
-                           "Blockchain, Crypto, Market, Regulation, AI, Security, DeFI, NFT, Layer1, Layer2, DAO"
+                 "content": (
+                    "与えられた記事を既存のカテゴリーに分類してください。\n\n"
+                    "【ルール】\n"
+                    "1. 以下のカテゴリーのいずれかに75%以上の確信度で分類できる場合のみ、そのカテゴリーを選択\n"
+                    "2. それ以外の場合は、必ず「None」を返す\n"
+                    "3. カテゴリー名のみを出力（説明等は一切付けない）\n\n"
+                    "【有効なカテゴリー】\n"
+                    "Blockchain, Crypto, Market, Regulation, AI, Security, DeFi, NFT, Infrastructure, DAO, Other"
+                 )
                 },
                 {
                     "role": "user",
                     "content": f"タイトル: {title}\n要約: {summary}"
                 }
             ],
-            max_tokens=max_tokens,
+            max_tokens=10,  # カテゴリ名のみの出力に制限
+            temperature=temperature  # より決定論的な出力に
+        )
+        
+        category = response_existing.choices[0].message['content'].strip()
+        
+        # 既存カテゴリの場合はそれを返す
+        if category in EXISTING_CATEGORIES:
+            return category
+            
+        # Step 2: 新規カテゴリの検討（既存カテゴリに該当しない場合のみ）
+        response_new = openai.ChatCompletion.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", 
+                 "content": (
+                    "新しいカテゴリー名を提案してください。\n\n"
+                    "【ルール】\n"
+                    "1. 以下の条件をすべて満たす場合のみ新カテゴリーを提案\n"
+                    "2. 条件を満たさない場合は「Other」のみを返す\n"
+                    "3. カテゴリー名のみを出力（説明等は一切付けない）\n\n"
+                    "【条件】\n"
+                    "- ブロックチェーン/Web3領域に直接関連する\n"
+                    "- 技術・概念が具体的で明確\n"
+                    "- 業界で一般的に認知された用語\n"
+                    "- 単一の英単語または略語（スペースなし）\n"
+                    "- すべて英数字"
+                 )
+                },
+                {
+                    "role": "user",
+                    "content": f"タイトル: {title}\n要約: {summary}"
+                }
+            ],
+            max_tokens=10,  # カテゴリ名のみの出力に制限
             temperature=temperature
         )
-        return response.choices[0].message['content'].strip()
+        
+        new_category = response_new.choices[0].message['content'].strip()
+        
+        # 新カテゴリの厳格な検証
+        if (new_category != "Other" and 
+            new_category.isalnum() and  # 英数字のみ
+            len(new_category.split()) == 1 and  # 単一語
+            new_category.upper() == new_category):  # 略語の場合は大文字
+            return new_category
+        
+        return "Other"
+            
     except Exception as e:
         print("Error in categorize_article_with_ai:", e)
-        return "Uncategorized"
+        return "Other"
 
 def process_article_content(page_id: str, article_content: str) -> bool:
     """
