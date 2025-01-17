@@ -1,7 +1,8 @@
 # Research Automation Tool
 
 ブロックチェーン・AI関連のニュースやリサーチを収集・分析し、Notionデータベースで管理するツール。
-Site: https://0xlawrence.notion.site/17650a8c997080948d93fe473cbed22d?v=17d50a8c997080d8b92a000ca48509f9（現在は実行結果の閲覧のみ）
+- Site: https://0xlawrence.notion.site/17650a8c997080948d93fe473cbed22d?v=17d50a8c997080d8b92a000ca48509f9
+   - （現在は実行結果の閲覧のみ）
 
 ## 機能概要
 
