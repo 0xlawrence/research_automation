@@ -30,9 +30,10 @@
 - OPENAI_API_KEY=your_openai_api_key
 
 2. 依存パッケージのインストール:
+```
 bash
 pip install -r requirements.txt
-
+```
 
 ## 使用方法
 
@@ -40,9 +41,10 @@ pip install -r requirements.txt
    - `src/config.py`の`RSS_FEEDS`リストにフィードURLを追加
 
 2. 新規記事の取得・登録
+```
 bash
 python main.py
-
+```
 3. 記事の詳細分析
    - Notionデータベース上で対象記事の`AI Processing`ステータスを`Processing`に変更
    - `main.py`を実行すると、`Processing`ステータスの記事に対して：
@@ -52,32 +54,74 @@ python main.py
      - 考察と問いの生成
      - 結果をNotionページに追加
 
+## セットアップ
+
+### 1. 環境変数の設定
+`.env`ファイルに以下を設定：
+
+- NOTION_TOKEN=your_notion_token
+- NOTION_DATABASE_ID=your_database_id
+- OPENAI_API_KEY=your_openai_api_key
+- DEEPSEEK_API_KEY=your_deepseek_api_key  # オプション
+- USE_DEEPSEEK=false  # true/false
+
+### 2. 依存パッケージのインストール
+```
+pip install -r requirements.txt
+```
+
+## 使用方法
+
+### 1. API選択の設定
+- `src/config.py`の`USE_DEEPSEEK`でAIプロバイダを選択
+  - `True`: DeepSeek API
+  - `False`: OpenAI API（デフォルト）
+
+### 2. RSSフィードの設定
+- `src/config.py`の`RSS_FEEDS`リストにフィードURLを追加
+
+### 3. 新規記事の取得・登録
+
+python main.py
+
+### 4. 記事の詳細分析
+- Notionデータベース上で対象記事の`Status`を`Processing`に変更
+- `main.py`を実行すると、`Processing`ステータスの記事に対して：
+  - 記事本文のスクレイピング
+  - 詳細なサマリーの生成
+  - インサイトと問いの抽出
+  - レポート骨子の作成
+  - 結果をNotionページに追加
+
 ## プロジェクト構造
 
+```
 research-automation/
-  - .env                  # 環境変数
-  - .gitignore           # Git除外設定
-  - README.md            # プロジェクト説明
-  - requirements.txt     # 依存パッケージ
-  - run_script.sh        # 実行スクリプト
-  - src/                 # ソースコード
-    - __init__.py
-    - main.py           # メインスクリプト
-    - config.py         # 設定・RSSフィード
-    - notion_utils.py   # Notion API関連
-    - openai_utils.py   # OpenAI API関連
-    - rss_fetch.py      # RSSフィード取得
-    - scraper.py        # Webスクレイピング
-    - cache_utils.py    # URL処理履歴管理
-  - logs/               # ログファイル
-    - .gitkeep
-  - data/               # キャッシュなどのデータ
-    - .gitkeep
+├── .env                  # 環境変数
+├── .gitignore           # Git除外設定
+├── README.md            # プロジェクト説明
+├── requirements.txt     # 依存パッケージ
+├── run_script.sh        # 実行スクリプト
+├── src/                 # ソースコード
+│   ├── __init__.py
+│   ├── main.py         # メインスクリプト
+│   ├── config.py       # 設定・RSSフィード
+│   ├── notion_utils.py # Notion API関連
+│   ├── openai_utils.py # OpenAI API関連
+│   ├── deepseek_utils.py # DeepSeek API関連
+│   ├── rss_fetch.py    # RSSフィード取得
+│   ├── scraper.py      # Webスクレイピング
+│   └── cache_utils.py  # URL処理履歴管理
+├── logs/               # ログファイル
+│   └── .gitkeep
+└── data/              # キャッシュなどのデータ
+    └── .gitkeep
+```
 
 ## 依存パッケージ
 
 - feedparser==6.0.10
-- openai==0.28.1
+- openai>=1.12.0
 - notion-client==2.3.0
 - python-dotenv==1.0.0
 - requests==2.31.0
@@ -86,7 +130,7 @@ research-automation/
 ## 注意事項
 
 - `.env`ファイルは必ずGitignoreに含めること
-- OpenAI APIの利用料金に注意
+- OpenAI/DeepSeek APIの利用料金に注意
 - スクレイピング対象サイトの利用規約を確認
 - 大量の記事を一度に処理する場合はAPIレート制限に注意
 
