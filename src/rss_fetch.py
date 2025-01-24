@@ -62,35 +62,44 @@ def clean_domain(url: str) -> str:
 def fetch_rss_items(feed_url: str, max_items: int = 5):
     """
     指定したRSSフィードURLから最新の記事を取得しリストとして返す。
+    Args:
+        feed_url: RSSフィードのURL
+        max_items: 取得する最大記事数（デフォルト5件）
     """
     try:
-        # フィードを取得
+        print(f"\n🔍 Checking feed: {feed_url}")
         feed = feedparser.parse(feed_url)
         
         # フィードの取得に失敗した場合のチェック
         if hasattr(feed, 'status') and feed.status >= 400:
-            print(f"Error fetching feed {feed_url}: HTTP status {feed.status}")
+            print(f"❌ Error fetching feed: HTTP status {feed.status}")
             return []
             
         # フィードが空または無効な場合のチェック
         if not hasattr(feed, 'entries') or not feed.entries:
-            print(f"No entries found in feed: {feed_url}")
+            print(f"⚠️ No entries found in feed")
             return []
             
         items = []
         source = clean_domain(feed_url)
         
+        print(f"📄 Found {len(feed.entries[:max_items])} recent entries")
+        
         for entry in feed.entries[:max_items]:
             try:
+                # 必須フィールドの存在確認
+                if not entry.get('title') or not entry.get('link'):
+                    print(f"⚠️ Missing required fields in entry")
+                    continue
+                
                 # 日付の処理
                 published = entry.get('published', '')
                 published_dt = None
-                
                 if published and hasattr(entry, 'published_parsed'):
                     try:
                         published_dt = datetime(*entry.published_parsed[:6])
                     except (TypeError, AttributeError):
-                        print(f"Error parsing date for entry in {feed_url}")
+                        print(f"⚠️ Error parsing date for: {entry.get('title')}")
                 
                 # コンテンツの取得
                 content = (entry.get('description', '') or 
@@ -98,11 +107,6 @@ def fetch_rss_items(feed_url: str, max_items: int = 5):
                          entry.get('content', [{'value': ''}])[0]['value'])
                 
                 clean_content = remove_html_tags(content)
-                
-                # 必須フィールドの存在確認
-                if not entry.get('title') or not entry.get('link'):
-                    print(f"Missing required fields in entry from {feed_url}")
-                    continue
                 
                 items.append({
                     'title': entry.title,
@@ -113,13 +117,13 @@ def fetch_rss_items(feed_url: str, max_items: int = 5):
                 })
                 
             except Exception as entry_error:
-                print(f"Error processing entry from {feed_url}: {entry_error}")
+                print(f"❌ Error processing entry: {str(entry_error)}")
                 continue
                 
         return items
         
     except Exception as e:
-        print(f"Error fetching RSS feed {feed_url}: {str(e)}")
+        print(f"❌ Error fetching RSS feed: {str(e)}")
         return []
 
 

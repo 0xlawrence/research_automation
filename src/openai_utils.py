@@ -37,7 +37,7 @@ def summarize_text(text: str, max_tokens: int = 500, temperature: float = 0.7) -
         print("Error in summarize_text:", e)
         return ""
 
-def generate_detailed_summary(text: str, max_tokens: int = 3000, temperature: float = 0.7) -> str:
+def generate_detailed_summary(text: str, max_tokens: int = 5000, temperature: float = 0.7) -> str:
     """
     記事本文から詳細なサマリーを生成。
     """
@@ -51,7 +51,7 @@ def generate_detailed_summary(text: str, max_tokens: int = 3000, temperature: fl
                 {
                     "role": "user",
                     "content": (
-                        "以下の文章を詳細に分析し、1000文字程度の日本語で以下の項目に分けて整理してください：\n"
+                        "以下の文章を詳細に分析し、日本語で以下の項目に分けて整理してください。各項目には3〜7までのポイントを箇条書きにしてください。：\n"
                         "1. 背景\n"
                         "2. 概要\n"
                         "3. 仕組み・技術的構造\n"
@@ -97,7 +97,7 @@ def generate_report_outline(text: str, max_tokens: int = 1000, temperature: floa
         print("Error in generate_report_outline:", e)
         return ""
 
-def generate_insights_and_questions(text: str, max_tokens: int = 2000, temperature: float = 0.7) -> str:
+def generate_insights_and_questions(text: str, max_tokens: int = 5000, temperature: float = 0.7) -> str:
     """
     記事の内容から洞察と質問を生成。
     """
@@ -126,7 +126,7 @@ def generate_insights_and_questions(text: str, max_tokens: int = 2000, temperatu
         print("Error in generate_insights_and_questions:", e)
         return ""
 
-def categorize_article_with_ai(title: str, summary: str, max_tokens: int = 50, temperature: float = 0.1) -> str:
+def categorize_article_with_ai(title: str, summary: str, max_tokens: int = 10, temperature: float = 0.1) -> str:
     """
     記事のタイトルとサマリーからカテゴリを推定。
     
@@ -170,7 +170,7 @@ def categorize_article_with_ai(title: str, summary: str, max_tokens: int = 50, t
                     "content": f"タイトル: {title}\n要約: {summary}"
                 }
             ],
-            max_tokens=10,  # カテゴリ名のみの出力に制限
+            max_tokens=max_tokens,  # カテゴリ名のみの出力に制限
             temperature=temperature  # より決定論的な出力に
         )
         
@@ -246,8 +246,8 @@ def process_article_content(page_id: str, article_content: str) -> bool:
         content = f"## 要約\n{summary}\n\n## 概要\n{detailed_summary}\n\n## レポートアウトラインの提案\n{outline}\n\n## インサイトと問い\n{insights}"
         append_page_content(page_id, content)
         
-        # ステータスを更新
-        update_notion_status(page_id, "Processed")
+        # ステータスを更新（"Completed" に変更）
+        update_notion_status(page_id, "Completed")
         
         return True
         

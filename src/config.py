@@ -39,6 +39,10 @@ RSS_FEEDS = [
     "https://arnicas.substack.com/feed",
     "https://www.ai-supremacy.com/feed",
     "https://review.stanfordblockchain.xyz/feed", 
+    "https://www.noahpinion.blog/feed",
+    "https://thegeneralist.substack.com/feed",
+    "https://api.paragraph.xyz/blogs/rss/@variantwriting",
+    "https://thanefield.capital/category/research/feed/",
 ]
 
 # 必要であれば外部ファイルや環境変数からRSSフィードを取得する方法も提供

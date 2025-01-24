@@ -1,7 +1,9 @@
 # src/notion_utils.py
 
 from notion_client import Client
+from datetime import datetime
 from src.config import NOTION_TOKEN, NOTION_DATABASE_ID
+from src.rss_fetch import clean_domain
 
 # Notionクライアントを初期化
 notion = Client(auth=NOTION_TOKEN)
@@ -12,18 +14,19 @@ def create_notion_page(title: str, url: str, summary: str, published_date=None, 
     初期ステータスは `Not Started`。
     """
     try:
+        # sourceが指定されている場合、clean_domainを使用してクリーンなドメインに変換
+        cleaned_source = clean_domain(url) if source else "Unknown"
+        
         properties = {
             "Name": {"title": [{"text": {"content": title}}]},
             "URL": {"url": url},
             "Summary": {"rich_text": [{"text": {"content": summary}}]},
             "AI Processing": {"select": {"name": "Not Started"}},
+            "Source": {"select": {"name": cleaned_source}},
         }
 
         if published_date:
             properties["Published Date"] = {"date": {"start": published_date.isoformat()}}
-
-        if source:
-            properties["Source"] = {"select": {"name": source}}
         
         if category:
             properties["Category"] = {"select": {"name": category}}

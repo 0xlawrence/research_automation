@@ -16,6 +16,6 @@ source /Users/shimada/Documents/python/research_automation/venv/bin/activate
 # スクリプトの実行（ログ出力付き）
 {
     echo "=== Script started at $(date) ==="
-    python3 src/main.py
+    python3 main.py
     echo "=== Script finished at $(date) ==="
 } >> "$LOG_FILE" 2>&1 
