@@ -50,48 +50,29 @@ def generate_detailed_summary(text: str, max_tokens: int = 6000) -> str:
                 {"role": "system",
                  "content": (
                     "# Goal\n"
-                    "Create a coherent narrative that fits within the main article's structure.\n\n"
-                    "# Writing Style\n"
-                    "- Use well-structured paragraphs (3-5 sentences each)\n"
-                    "- Insert a line break when a paragraph exceeds 500 Japanese characters\n"
-                    "- Start sections with ## (as these are subsections of the main article)\n"
-                    "- Use ### for further subdivisions\n"
-                    "- Keep paragraph lengths balanced (250-500 characters ideal)\n\n"
-                    "# Format Rules\n"
-                    "- Use ## for main analysis sections\n"
-                    "- Use ### for subsections\n"
-                    "- Use 「」 for emphasis (never use *)\n"
-                    "- Use paragraphs as primary structure\n"
-                    "- Add single line break for long paragraphs\n"
-                    "- Reserve lists only for truly sequential items\n\n"
-                    "# Critical Requirements\n"
-                    "- Write in Japanese (think in English)\n"
-                    "- Focus on logical structure\n"
-                    "- Explain relationships between ideas\n"
-                    "- Support claims with evidence\n"
-                    "- Keep formatting minimal and clean\n"
-                    "- Break long paragraphs at natural points"
+                    "Analyze the given text comprehensively and organize key points in an easy-to-understand format.\n\n"
+                    "# Return Format\n"
+                    "Divide into 3 main sections, each with an introduction and 2-3 key points.\n"
+                    "Use # for headings and - for bullet points.\n\n"
+                    "# Warnings\n"
+                    "- Include sufficient context for each point\n"
+                    "- Focus on a small number of important points\n"
+                    "- Explain technical terms appropriately\n"
+                    "- Provide the final output in Japanese"
                  )
                 },
                 {"role": "user",
                  "content": (
-                    "Analyze the following text and create a detailed summary with this structure:\n\n"
-                    "## 背景と概要\n"
-                    "(文脈を理解するための背景説明)\n"
-                    "(議論の発展と主要な論点)\n\n"
-                    "## 主要な議論\n"
-                    "(中心的な主張とその根拠)\n"
-                    "(具体的な事例による裏付け)\n\n"
-                    "## 結論と示唆\n"
-                    "(議論から導かれる結論)\n"
-                    "(実務への示唆と応用)\n\n"
-                    "### 今後の展望\n"
-                    "(将来的な発展可能性)\n"
-                    "(残された課題と検討事項)\n\n"
+                    "Analyze the following text and provide a summary in Japanese with this structure:\n\n"
+                    "# 背景と概要\n"
+                    "(Analysis of industry context and historical background)\n\n"
+                    "# 主要な特徴と影響\n"
+                    "(Analysis of technical and business significance)\n\n"
+                    "# 展望と課題\n"
+                    "(Analysis of future possibilities and challenges)\n\n"
                     f"Text to analyze:\n{text}"
                  )}
             ],
-            **COMPLETION_PARAMS,
             max_tokens=max_tokens
         )
         
