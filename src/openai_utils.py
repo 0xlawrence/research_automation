@@ -1,18 +1,19 @@
 # src/openai_utils.py
 
-import openai
+from openai import OpenAI
 from src.config import OPENAI_API_KEY
 from src.notion_utils import append_page_content, update_notion_status
+from typing import List, Dict
 
-# OpenAIのAPI keyを設定
-openai.api_key = OPENAI_API_KEY
+# OpenAIクライアントの初期化
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 def summarize_text(text: str, max_tokens: int = 500, temperature: float = 0.7) -> str:
     """
     GPTモデルを用いて短い要約を生成。
     """
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", 
@@ -31,8 +32,7 @@ def summarize_text(text: str, max_tokens: int = 500, temperature: float = 0.7) -
             frequency_penalty=0.2,
             presence_penalty=0.3
         )
-        summary = response.choices[0].message['content'].strip()
-        return summary
+        return response.choices[0].message.content
     except Exception as e:
         print("Error in summarize_text:", e)
         return ""
@@ -42,7 +42,7 @@ def generate_detailed_summary(text: str, max_tokens: int = 5000, temperature: fl
     記事本文から詳細なサマリーを生成。
     """
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", 
@@ -64,7 +64,7 @@ def generate_detailed_summary(text: str, max_tokens: int = 5000, temperature: fl
             max_tokens=max_tokens,
             temperature=temperature
         )
-        return response.choices[0].message['content'].strip()
+        return response.choices[0].message.content
     except Exception as e:
         print("Error in generate_detailed_summary:", e)
         return ""
@@ -74,7 +74,7 @@ def generate_report_outline(text: str, max_tokens: int = 1000, temperature: floa
     記事の内容から報告書のアウトラインを生成。
     """
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", 
@@ -92,7 +92,7 @@ def generate_report_outline(text: str, max_tokens: int = 1000, temperature: floa
             max_tokens=max_tokens,
             temperature=temperature
         )
-        return response.choices[0].message['content'].strip()
+        return response.choices[0].message.content
     except Exception as e:
         print("Error in generate_report_outline:", e)
         return ""
@@ -102,7 +102,7 @@ def generate_insights_and_questions(text: str, max_tokens: int = 5000, temperatu
     記事の内容から洞察と質問を生成。
     """
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", 
@@ -121,7 +121,7 @@ def generate_insights_and_questions(text: str, max_tokens: int = 5000, temperatu
             max_tokens=max_tokens,
             temperature=temperature
         )
-        return response.choices[0].message['content'].strip()
+        return response.choices[0].message.content
     except Exception as e:
         print("Error in generate_insights_and_questions:", e)
         return ""
@@ -151,7 +151,7 @@ def categorize_article_with_ai(title: str, summary: str, max_tokens: int = 10, t
     
     try:
         # Step 1: 既存カテゴリとの適合性確認
-        response_existing = openai.ChatCompletion.create(
+        response_existing = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", 
@@ -170,18 +170,17 @@ def categorize_article_with_ai(title: str, summary: str, max_tokens: int = 10, t
                     "content": f"タイトル: {title}\n要約: {summary}"
                 }
             ],
-            max_tokens=max_tokens,  # カテゴリ名のみの出力に制限
-            temperature=temperature  # より決定論的な出力に
+            max_tokens=max_tokens,
+            temperature=temperature
         )
         
-        category = response_existing.choices[0].message['content'].strip()
+        category = response_existing.choices[0].message.content
         
-        # 既存カテゴリの場合はそれを返す
         if category in EXISTING_CATEGORIES:
             return category
             
-        # Step 2: 新規カテゴリの検討（既存カテゴリに該当しない場合のみ）
-        response_new = openai.ChatCompletion.create(
+        # Step 2: 新規カテゴリの検討
+        response_new = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", 
@@ -204,17 +203,16 @@ def categorize_article_with_ai(title: str, summary: str, max_tokens: int = 10, t
                     "content": f"タイトル: {title}\n要約: {summary}"
                 }
             ],
-            max_tokens=10,  # カテゴリ名のみの出力に制限
+            max_tokens=10,
             temperature=temperature
         )
         
-        new_category = response_new.choices[0].message['content'].strip()
+        new_category = response_new.choices[0].message.content
         
-        # 新カテゴリの厳格な検証
         if (new_category != "Other" and 
-            new_category.isalnum() and  # 英数字のみ
-            len(new_category.split()) == 1 and  # 単一語
-            new_category.upper() == new_category):  # 略語の場合は大文字
+            new_category.isalnum() and
+            len(new_category.split()) == 1 and
+            new_category.upper() == new_category):
             return new_category
         
         return "Other"
@@ -223,34 +221,38 @@ def categorize_article_with_ai(title: str, summary: str, max_tokens: int = 10, t
         print("Error in categorize_article_with_ai:", e)
         return "Other"
 
-def process_article_content(page_id: str, article_content: str) -> bool:
+def process_article_content(page_id: str, content: str) -> bool:
     """
-    記事の内容を処理し、各種分析結果をNotionに追加。
+    記事本文を処理し、結果をNotionページに追加。
+    
+    Args:
+        page_id (str): NotionページのID
+        content (str): 記事本文
+    
+    Returns:
+        bool: 処理が成功したかどうか
     """
     try:
-        # 要約を生成
-        summary = summarize_text(article_content)
-        if not summary:
-            return False
-            
         # 詳細なサマリーを生成
-        detailed_summary = generate_detailed_summary(article_content)
+        detailed_summary = generate_detailed_summary(content)
+        if detailed_summary:
+            append_page_content(page_id, "## 詳細分析\n" + detailed_summary)
         
-        # アウトラインを生成
-        outline = generate_report_outline(article_content)
+        # レポート骨子を生成
+        report_outline = generate_report_outline(content)
+        if report_outline:
+            append_page_content(page_id, "\n## レポート骨子\n" + report_outline)
         
-        # 洞察と質問を生成
-        insights = generate_insights_and_questions(article_content)
+        # インサイトと問いを生成
+        insights = generate_insights_and_questions(content)
+        if insights:
+            append_page_content(page_id, "\n## インサイトと問い\n" + insights)
         
-        # 結果をNotionに追加
-        content = f"## 要約\n{summary}\n\n## 概要\n{detailed_summary}\n\n## レポートアウトラインの提案\n{outline}\n\n## インサイトと問い\n{insights}"
-        append_page_content(page_id, content)
-        
-        # ステータスを更新（"Completed" に変更）
+        # 処理完了後、ステータスを更新
         update_notion_status(page_id, "Completed")
-        
         return True
         
     except Exception as e:
-        print("Error in process_article_content:", e)
+        print(f"Error in process_article_content: {e}")
+        update_notion_status(page_id, "Failed")
         return False

@@ -8,6 +8,8 @@ load_dotenv()
 NOTION_TOKEN = os.getenv("NOTION_TOKEN")
 NOTION_DATABASE_ID = os.getenv("NOTION_DATABASE_ID")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
+USE_DEEPSEEK = os.getenv("USE_DEEPSEEK", "false").lower() == "true"
 
 # 必須の環境変数が設定されているか確認
 if not NOTION_TOKEN:
@@ -16,6 +18,8 @@ if not NOTION_DATABASE_ID:
     raise EnvironmentError("環境変数 'NOTION_DATABASE_ID' が設定されていません。 .envファイルを確認してください。")
 if not OPENAI_API_KEY:
     raise EnvironmentError("環境変数 'OPENAI_API_KEY' が設定されていません。 .envファイルを確認してください。")
+if USE_DEEPSEEK and not DEEPSEEK_API_KEY:
+    raise EnvironmentError("USE_DEEPSEEK=trueの場合、DEEPSEEK_API_KEYが必要です。 .envファイルを確認してください。")
 
 # 収集対象のRSSフィードを定義
 RSS_FEEDS = [
@@ -42,7 +46,6 @@ RSS_FEEDS = [
     "https://www.noahpinion.blog/feed",
     "https://thegeneralist.substack.com/feed",
     "https://api.paragraph.xyz/blogs/rss/@variantwriting",
-    "https://thanefield.capital/category/research/feed/",
 ]
 
 # 必要であれば外部ファイルや環境変数からRSSフィードを取得する方法も提供

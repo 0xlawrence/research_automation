@@ -1,20 +1,33 @@
 from datetime import datetime
 import logging
 from typing import List, Dict
-import openai
 import time
 
 # srcディレクトリからのインポート
-from src.config import RSS_FEEDS, OPENAI_API_KEY
+from src.config import RSS_FEEDS, USE_DEEPSEEK, OPENAI_API_KEY
 from src.rss_fetch import fetch_all_rss_items
-from src.openai_utils import (
-    summarize_text,
-    categorize_article_with_ai,
-    generate_detailed_summary,
-    generate_report_outline,
-    generate_insights_and_questions,
-    process_article_content
-)
+
+# APIの切り替え
+if not USE_DEEPSEEK:
+    from src.openai_utils import (
+        summarize_text,
+        categorize_article_with_ai,
+        generate_detailed_summary,
+        generate_report_outline,
+        generate_insights_and_questions,
+        process_article_content
+    )
+else:
+    # DeepSeek APIを使用
+    from src.deepseek_utils import (
+        summarize_text,
+        categorize_article_with_ai,
+        generate_detailed_summary,
+        generate_report_outline,
+        generate_insights_and_questions,
+        process_article_content
+    )
+
 from src.scraper import fetch_article_content
 from src.notion_utils import (
     create_notion_page, 
@@ -23,9 +36,6 @@ from src.notion_utils import (
     get_pages_by_status
 )
 from src.cache_utils import load_processed_urls, save_processed_url
-
-# OpenAI APIキーを設定
-openai.api_key = OPENAI_API_KEY
 
 def register_new_articles():
     """
