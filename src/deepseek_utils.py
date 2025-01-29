@@ -1,13 +1,16 @@
 from openai import OpenAI
-from src.config import DEEPSEEK_API_KEY
+from src.config import DEEPSEEK_API_KEY  # 必要な設定のみインポート
 from src.notion_utils import append_page_content, update_notion_status
 from typing import List, Dict
 
-# DeepSeek APIクライアントの初期化
-client = OpenAI(
-    api_key=DEEPSEEK_API_KEY,
-    base_url="https://api.deepseek.com"
-)
+# クライアントを遅延初期化するための関数
+def get_client():
+    if not hasattr(get_client, '_client'):
+        get_client._client = OpenAI(
+            api_key=DEEPSEEK_API_KEY,
+            base_url="https://api.deepseek.com"
+        )
+    return get_client._client
 
 # 共通のパラメータ設定
 COMPLETION_PARAMS = {
@@ -19,13 +22,15 @@ COMPLETION_PARAMS = {
 def summarize_text(text: str, max_tokens: int = 4000) -> str:
     """DeepSeek Reasonerを使用して短い要約を生成。"""
     try:
+        # クライアントを関数内で取得
+        client = get_client()
         response = client.chat.completions.create(
             model="deepseek-reasoner",
             messages=[
                 {"role": "user",
                  "content": (
                     "以下の文章を200文字程度の日本語で要点整理をしてください。\n"
-                    "箇条書きではなく、読みやすい文章として構成してください。\n\n"
+                    "箇条書きではなく、1文ごとを短くして読みやすい文章として構成してください。\n\n"
                     f"文章:\n{text}"
                  )}
             ],
@@ -44,7 +49,7 @@ def summarize_text(text: str, max_tokens: int = 4000) -> str:
 def generate_detailed_summary(text: str, max_tokens: int = 6000) -> str:
     """DeepSeek Reasonerを使用して詳細なサマリーを生成。"""
     try:
-        response = client.chat.completions.create(
+        response = get_client().chat.completions.create(
             model="deepseek-reasoner",
             messages=[
                 {"role": "system",
@@ -54,6 +59,7 @@ def generate_detailed_summary(text: str, max_tokens: int = 6000) -> str:
                     "# Return Format\n"
                     "Divide into 3 main sections, each with an introduction and 2-3 key points.\n"
                     "Use # for headings and - for bullet points.\n\n"
+                    "Never use ** for emphasis.\n\n"
                     "# Warnings\n"
                     "- Include sufficient context for each point\n"
                     "- Focus on a small number of important points\n"
@@ -88,7 +94,7 @@ def generate_detailed_summary(text: str, max_tokens: int = 6000) -> str:
 def generate_report_outline(text: str, max_tokens: int = 5000) -> str:
     """DeepSeek Reasonerを使用してレポートアウトラインを生成。"""
     try:
-        response = client.chat.completions.create(
+        response = get_client().chat.completions.create(
             model="deepseek-reasoner",
             messages=[
                 {"role": "system",
@@ -109,7 +115,7 @@ def generate_report_outline(text: str, max_tokens: int = 5000) -> str:
                     "- Use ### for key subsections\n"
                     "- Use - for main points\n"
                     "- Use  - for supporting points (indented)\n"
-                    "- Use 「」 for emphasis (never use *)\n\n"
+                    "- Use 「」 for emphasis (never use **)\n\n"
                     "# Critical Requirements\n"
                     "- Write in Japanese (think in English)\n"
                     "- Keep structure high-level\n"
@@ -157,7 +163,7 @@ def generate_report_outline(text: str, max_tokens: int = 5000) -> str:
 def generate_insights_and_questions(text: str, max_tokens: int = 5000) -> str:
     """DeepSeek Reasonerを使用して洞察と質問を生成。"""
     try:
-        response = client.chat.completions.create(
+        response = get_client().chat.completions.create(
             model="deepseek-reasoner",
             messages=[
                 {"role": "system",
@@ -177,7 +183,7 @@ def generate_insights_and_questions(text: str, max_tokens: int = 5000) -> str:
                     "# Format Rules\n"
                     "- Use ## for main sections\n"
                     "- Use ### for subsections\n"
-                    "- Use 「」 for emphasis (never use *)\n"
+                    "- Use 「」 for emphasis (never use **)\n"
                     "- Use paragraphs as primary structure\n"
                     "- Add single line break for long paragraphs\n"
                     "- Reserve lists only for truly sequential items\n\n"
@@ -223,15 +229,16 @@ def generate_insights_and_questions(text: str, max_tokens: int = 5000) -> str:
 def categorize_article_with_ai(title: str, summary: str, max_tokens: int = 100) -> str:
     """DeepSeek Reasonerを使用してカテゴリを推定。"""
     EXISTING_CATEGORIES = {
-        "Blockchain", "Crypto", "Market", "Regulation", 
+        "Blockchain", "Market", "Regulation", 
         "AI", "Security", "DeFi", "NFT",
-        "Layer1", "Layer2", "DAO",
+        "Layer1", "Layer2", "DAO", "Bridge", "Social",
         "Gaming", "Metaverse", "Privacy", "Identity",
-        "Protocol", "Bridge", "Social",
+        "Product", "Development", "Airdrop", "Economy",
+        "Funding",
     }
     
     try:
-        response = client.chat.completions.create(
+        response = get_client().chat.completions.create(
             model="deepseek-reasoner",
             messages=[
                 {"role": "user",
@@ -271,11 +278,6 @@ def process_article_content(page_id: str, content: str) -> bool:
         insights = generate_insights_and_questions(content)
         if insights:
             append_page_content(page_id, "\n# Insights and Questions\n" + insights)
-        
-        # レポート骨子を生成
-        report_outline = generate_report_outline(content)
-        if report_outline:
-            append_page_content(page_id, "\n# Report Outline\n" + report_outline)
         
         # 処理完了後、ステータスを更新
         update_notion_status(page_id, "Completed")

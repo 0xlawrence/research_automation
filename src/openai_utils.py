@@ -57,6 +57,8 @@ def generate_detailed_summary(text: str, max_tokens: int = 5000, temperature: fl
                         "3. 仕組み・技術的構造\n"
                         "4. 市場への影響\n"
                         "5. 今後の展望\n\n"
+                        "【注意】\n"
+                        "・ **test**のようにBoldを使用しないこと\n\n"
                         f"文章:\n{text}"
                     )
                 }
@@ -85,6 +87,8 @@ def generate_report_outline(text: str, max_tokens: int = 1000, temperature: floa
                     "content": (
                         "以下の文章を参考にして、レポートを作成するためのレポートアウトラインを日本語で作成してください。\n"
                         "重要なポイントを階層的に整理し、箇条書きで表現してください。\n\n"
+                        "【注意】\n"
+                        "・ **test**のようにBoldを使用しないこと\n\n"
                         f"文章:\n{text}"
                     )
                 }
@@ -114,6 +118,8 @@ def generate_insights_and_questions(text: str, max_tokens: int = 5000, temperatu
                         "以下の文章を分析し、以下の2つの観点で日本語でまとめてください：\n"
                         "1. Insights（3-5個）\n"
                         "2. Questions for Deep Dive（3-5個）\n\n"
+                        "【注意】\n"
+                        "・ **test**のようにBoldを使用しないこと\n\n"
                         f"文章:\n{text}"
                     )
                 }
@@ -135,18 +141,12 @@ def categorize_article_with_ai(title: str, summary: str, max_tokens: int = 10, t
     """
     EXISTING_CATEGORIES = {
         # 既存カテゴリ
-        "Blockchain", "Crypto", "Market", "Regulation", 
-        "AI", "Security", "DeFi", "NFT",  # DeFi, NFTは一般的な表記を維持
-        "Layer1", "Layer2", "DAO",  # DAOは略語なので大文字
-
-        # 新規カテゴリ候補
-        "Gaming",     # ブロックチェーンゲーム全般
-        "Metaverse", # メタバース関連
-        "Privacy",   # プライバシー技術
-        "Identity",  # 分散型アイデンティティ
-        "Protocol",  # プロトコル開発
-        "Bridge",    # クロスチェーンブリッジ
-        "Social",    # Web3ソーシャル
+        "Blockchain", "Market", "Regulation", 
+        "AI", "Security", "DeFi", "NFT",
+        "Layer1", "Layer2", "DAO", "Bridge", "Social",
+        "Gaming", "Metaverse", "Privacy", "Identity",
+        "Product", "Development", "Airdrop", "Economy",
+        "Funding",
     }
     
     try:
@@ -237,11 +237,6 @@ def process_article_content(page_id: str, content: str) -> bool:
         detailed_summary = generate_detailed_summary(content)
         if detailed_summary:
             append_page_content(page_id, "## 詳細分析\n" + detailed_summary)
-        
-        # レポート骨子を生成
-        report_outline = generate_report_outline(content)
-        if report_outline:
-            append_page_content(page_id, "\n## レポート骨子\n" + report_outline)
         
         # インサイトと問いを生成
         insights = generate_insights_and_questions(content)

@@ -46,6 +46,16 @@ RSS_FEEDS = [
     "https://www.noahpinion.blog/feed",
     "https://thegeneralist.substack.com/feed",
     "https://api.paragraph.xyz/blogs/rss/@variantwriting",
+    "https://ouroborosresearch.substack.com/feed",
+    "https://a16zcrypto.substack.com/feed",
+    "https://reports.tiger-research.com/feed",
+    "https://insights4vc.substack.com/feed",
+    "https://thedailydegen.substack.com/feed",
+    "https://www.lennysnewsletter.com/feed",
+    "https://www.notboring.co/feed",
+    "https://cryptohayes.substack.com/feed",
+    "https://viktordefi.com/feed",
+    
 ]
 
 # 必要であれば外部ファイルや環境変数からRSSフィードを取得する方法も提供

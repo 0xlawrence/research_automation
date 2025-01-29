@@ -13,7 +13,6 @@ if not USE_DEEPSEEK:
         summarize_text,
         categorize_article_with_ai,
         generate_detailed_summary,
-        generate_report_outline,
         generate_insights_and_questions,
         process_article_content
     )
@@ -23,7 +22,6 @@ else:
         summarize_text,
         categorize_article_with_ai,
         generate_detailed_summary,
-        generate_report_outline,
         generate_insights_and_questions,
         process_article_content
     )
