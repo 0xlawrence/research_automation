@@ -6,13 +6,15 @@
 
 ## 機能概要
 
-1. **RSSフィードからの記事収集**
+1. **RSSフィードとHackerNewsからの記事収集**
    - 設定したRSSフィードから新規記事を取得
+   - HackerNews上位記事の取得と分析
    - Notionデータベースに記事情報を登録
-   - OpenAIによる初期要約生成
+   - AIによる初期要約生成
    - カテゴリの自動分類（DeFi, NFT, Layer1, Layer2, DAO, AI, その他）
 
 2. **AI分析機能**
+   - 統一AIクライアント（OpenAI/DeepSeekの切り替え対応）
    - 詳細なサマリー生成（背景、概要、仕組み・技術的構造、市場への影響、今後の展望）
    - レポート作成のための骨子提案（Background, Problems, Solutions, Conclusion）
    - 考察の視点（3-5個）と追加調査が必要な問い（3-5個）の生成
@@ -106,9 +108,12 @@ research-automation/
 │   ├── __init__.py
 │   ├── main.py         # メインスクリプト
 │   ├── config.py       # 設定・RSSフィード
+│   ├── ai_client.py    # 統一AIクライアント
+│   ├── hackernews_fetch.py # HackerNews取得
 │   ├── notion_utils.py # Notion API関連
 │   ├── openai_utils.py # OpenAI API関連
 │   ├── deepseek_utils.py # DeepSeek API関連
+│   ├── perplexity.py   # Perplexity API関連
 │   ├── rss_fetch.py    # RSSフィード取得
 │   ├── scraper.py      # Webスクレイピング
 │   └── cache_utils.py  # URL処理履歴管理
