@@ -42,6 +42,7 @@ def fetch_article_content(url: str) -> str:
         return "HTTPリクエストエラーが発生しました。"
 
     except Exception as e:
-        # その他のエラー処理
-        print(f"スクレイピングエラー: {e}")
-        return "スクレイピングエラーが発生しました。"
+        print(f"❌ Content Scraping Failed [URL: {url[:30]}...]")
+        print(f"🛠️ Error Type: {type(e).__name__}")
+        print(f"💡 Troubleshooting: Check site structure or robots.txt")
+        return "Content unavailable: scraping failed"

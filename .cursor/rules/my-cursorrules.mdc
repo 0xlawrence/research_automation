@@ -1,0 +1,68 @@
+---
+description: 
+globs: .md
+---
+# Language Settings
+## Japanese_required
+- Comments
+- Commit messages
+- AI chat responses
+## English_required
+- Error messages
+
+# Git Rules
+## command
+- Always add --no-pager when running Git commands
+- Do not push to remote until instructed
+## commit-prefixes:
+- feat: "Adding new features or modifying functionality"
+- fix: "Bug fixes or typo corrections"
+- docs: "Adding documentation"
+- style: "Formatting changes, import order adjustments, or adding comments"
+- refactor: "Code refactoring without affecting functionality"
+- test: "Adding or modifying tests"
+- ci: "Changes related to CI/CD"
+- docker: "Modifications to Dockerfile or container-related changes"
+- chore: "Miscellaneous changes"
+
+# Development Flow
+## feature_development_steps
+1. Execute initialization commands (e.g., bun init, uv init)
+2. Initialize git
+3. Verify and create the recommended directory structure if missing
+4. Install required libraries
+5. Confirm readiness to start development using commands
+## bug_fix_steps
+1. Carefully investigate affected areas
+2. Create a new branch
+3. Implement the changes
+4. Run tests
+5. Fix any failing tests
+6. Commit once tests pass
+7. Merge the branch
+8. Delete the branch after merging
+
+# Directory Structure
+## recommend_directory_structure
+- src
+- docs
+- tests
+- assets (Includes project icons,demo,slides,etc.)
+- .env
+- .env.example
+- .gitignore
+- .gitattributes
+- README.md
+- experiment.ts(or experiment.py or experiment.rs etc....): You can use this file to experiment with code.
+
+# TypeScript Rules
+## recommendations
+- use bun as a package manager & runtime
+- Configure baseUrl as '.' and paths to use '@/*' alias for 'src/*' directory imports
+
+# Shortcut Aliases
+- `/ask`: The user is requesting consultation on a policy decision. Provide a proactive response with a multi-faceted analysis. Unless given clear instructions, do not execute any tasks during the consultation.
+- `/plan`: Clearly and thoroughly outline a work plan and confirm there are no discrepancies. Proceed with execution only after reaching an agreement.
+- `/debug`: Identify the root cause of a bug. List 5-7 possible causes and narrow them down to 1-2. Utilize logs to validate hypotheses before applying fixes.
+- `/cmt`: Add appropriate comments and documentation to clarify the intent of the given code. Follow the existing code formatting.
+- `/log`: Consider the appropriate log level and record only necessary information. Design logs to be concise and avoid redundancy. Follow the existing code formatting.

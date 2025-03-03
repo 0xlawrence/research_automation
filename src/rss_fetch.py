@@ -4,6 +4,7 @@ import feedparser
 from datetime import datetime
 from html.parser import HTMLParser
 import requests  # 追加
+from .config import RSS_FEEDS
 
 
 class HTMLTagRemover(HTMLParser):
